@@ -29,7 +29,7 @@ git add -A && git commit -m "sửa câu hỏi bài 3" && git push
 ```
 Site: https://cattybeo.github.io/quiz-yte/
 
-GitHub Pages cache file khoảng 10 phút. Mở lại mà chưa thấy bản mới thì hard refresh (Cmd+Shift+R) hoặc chờ vài phút.
+CSS/JS được gắn `?v=<hash nội dung>` trong `index.html` để trình duyệt không dùng bản cache cũ. Việc này chạy tự động qua git pre-commit hook (`.githooks/pre-commit`, được bật bởi `npm install`). Clone repo ở máy khác thì chạy `npm install` để bật hook.
 
 ## Cập nhật câu hỏi
 

@@ -1,0 +1,3 @@
+#!/bin/sh
+# Cập nhật ?v=<hash> cho CSS/JS trong index.html trước mỗi commit.
+node tools/version-assets.mjs && git add index.html
