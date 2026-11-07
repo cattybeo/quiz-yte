@@ -1,4 +1,4 @@
-# Quiz ôn tập Tổ chức & Quản lý Y tế
+# Quiz tổ chức và quản lý y tế
 
 Static site thuần HTML/CSS/JS, không build step, không dependency.
 
@@ -39,14 +39,14 @@ Sửa trực tiếp `data.js`, hoặc parse lại từ PDF:
 npm run data
 ```
 Format mỗi câu: `{ "q": "...", "options": ["...", "..."], "answer": <index 0-based> }`.
-Đổi tiêu đề trang: thêm `window.QUIZ_META = { title: "...", subtitle: "..." }` vào cuối `data.js`.
+Đổi tiêu đề trang: thêm `window.QUIZ_META = { title: "..." }` vào cuối `data.js`.
 
 ## Hành vi
 
-- Mỗi lượt: xáo trộn thứ tự câu hỏi. Bật "Xáo trộn đáp án" thì xáo luôn đáp án, trừ câu có "Cả A và B" (giữ nguyên) và "Tất cả các câu trên" (giữ ở cuối, xáo phần còn lại).
+- Mỗi lượt luôn xáo trộn thứ tự câu hỏi và đáp án, trừ câu có "Cả A và B" (giữ nguyên) và "Tất cả các câu trên" (giữ ở cuối, xáo phần còn lại).
 - 10 giây mỗi câu. Hết giờ tính là sai, hiện đáp án đúng.
 - Đúng: tự sang câu sau sau 0,9s. Sai/hết giờ: bấm "Câu tiếp" (hoặc Enter).
 - Tiến độ lưu `localStorage` (key `yteq.v1`) sau mỗi câu: reload hoặc đóng tab vẫn làm tiếp được.
-- Kết quả lưu lịch sử (tối đa 300 lượt): điểm, xếp loại (Xuất sắc ≥90%, Tốt ≥75%, Đạt ≥50%, Cần ôn lại), thời gian, danh sách câu sai kèm đáp án đúng.
-- Phím tắt desktop: `1–4` / `A–D` chọn, `Enter` câu tiếp, `Esc` về trang chủ.
-- Âm thanh tạo bằng Web Audio API (không file asset). Trên iPhone, gạt công tắc im lặng sẽ tắt tiếng.
+- Hết bài hiện màn kết quả: điểm, xếp loại (Xuất sắc ≥90%, Tốt ≥75%, Đạt ≥50%, Cần ôn lại), thời gian, câu sai kèm đáp án đúng. Các lượt vẫn được lưu trong localStorage (`history`, tối đa 300) dù không có trang xem lịch sử.
+- Phím tắt desktop (không hiển thị trên UI): `1–4` / `A–D` chọn, `Enter` câu tiếp, `Esc` về danh sách bài.
+- Âm thanh luôn bật, tạo bằng Web Audio API (không file asset). Trên iPhone, gạt công tắc im lặng sẽ tắt tiếng.
