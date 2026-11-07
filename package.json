@@ -1,0 +1,13 @@
+{
+  "name": "quiz-yte",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Quiz ôn tập Tổ chức & Quản lý Y tế (static site)",
+  "scripts": {
+    "dev": "browser-sync start --server --files \"index.html,styles.css,app.js,data.js\" --port 5173 --no-notify --no-ui",
+    "data": "pdftotext -layout questionnaire_dap_an.pdf .q.txt && python3 tools/parse.py .q.txt data.js && rm .q.txt"
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.3"
+  }
+}
