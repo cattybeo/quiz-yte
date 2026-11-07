@@ -147,6 +147,10 @@ svg.i { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor;
 .timer.low .fill { background: var(--warn); }
 .timer.done { color: var(--faint); }
 .timer.done .fill { background: var(--line-strong); }
+/* Hết giờ = fail: tín hiệu đỏ nằm ở đồng hồ và viền thẻ, không tô đỏ đáp án nào vì chưa chọn */
+.timer.timeout { color: var(--no); animation: shake .36s ease; }
+.timer.timeout .track { background: var(--no-wash); border-color: color-mix(in srgb, var(--no) 45%, transparent); }
+.qcard.timeout { border-color: var(--no); box-shadow: 0 0 0 1px var(--no); }
 
 .question { font-size: clamp(19px, 2.4vw, 22px); line-height: 1.5; font-weight: 600; margin: 0 0 20px; letter-spacing: -0.01em; text-wrap: pretty; }
 .options { display: grid; gap: 10px; }

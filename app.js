@@ -281,7 +281,10 @@
       });
 
       const timer = $(".timer");
-      timer.classList.remove("low"); timer.classList.add("done");
+      const timedOut = rec.c === null;
+      timer.classList.remove("low");
+      timer.classList.add(timedOut ? "timeout" : "done");
+      $(".qcard").classList.toggle("timeout", timedOut);
       if (!live) { $(".timer .fill").style.transform = "scaleX(0)"; $(".timer .num").textContent = "0s"; }
 
       // Screen readers only; sighted users read the colors.
