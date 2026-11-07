@@ -22,13 +22,14 @@ npm run dev        # http://localhost:5173
 
 ## Deploy
 
-Tự động: mỗi lần `git push` lên `main`, GitHub Actions (`.github/workflows/deploy.yml`) deploy lên GitHub Pages sau khoảng 1 phút.
+GitHub Pages deploy thẳng từ branch `main` (thư mục gốc). Mỗi lần push, GitHub tự publish lại sau khoảng 1 phút:
 
 ```bash
 git add -A && git commit -m "sửa câu hỏi bài 3" && git push
-gh run watch        # theo dõi deploy (tuỳ chọn)
 ```
-Workflow chỉ publish `index.html, styles.css, app.js, data.js` và gắn `?v=<commit>` vào CSS/JS để trình duyệt không giữ bản cũ.
+Site: https://cattybeo.github.io/quiz-yte/
+
+GitHub Pages cache file khoảng 10 phút. Mở lại mà chưa thấy bản mới thì hard refresh (Cmd+Shift+R) hoặc chờ vài phút.
 
 ## Cập nhật câu hỏi
 
