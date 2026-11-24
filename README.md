@@ -5,7 +5,7 @@ Static site thuần HTML/CSS/JS, không build step, không dependency.
 ```
 index.html   entry
 styles.css   giao diện (light, tông trung tính/mát)
-app.js       logic: routing (#hash), timer, shuffle, localStorage, sound
+app.js       logic: routing (#hash), shuffle, localStorage, sound
 data.js      102 câu / 10 bài, generate từ questionnaire_dap_an.pdf
 tools/parse.py  script parse PDF -> data.js
 ```
@@ -44,9 +44,9 @@ Format mỗi câu: `{ "q": "...", "options": ["...", "..."], "answer": <index 0-
 ## Hành vi
 
 - Mỗi lượt luôn xáo trộn thứ tự câu hỏi và đáp án, trừ câu có "Cả A và B" (giữ nguyên) và "Tất cả các câu trên" (giữ ở cuối, xáo phần còn lại).
-- 10 giây mỗi câu. Hết giờ tính là sai, hiện đáp án đúng.
-- Đúng: tự sang câu sau sau 0,9s. Sai/hết giờ: bấm "Câu tiếp" (hoặc Enter).
+- Không giới hạn thời gian. Chọn đáp án là hiện đúng/sai ngay; câu đã trả lời không đổi được.
+- Đúng: tự sang câu sau sau 0,9s. Sai: bấm "Câu tiếp" (hoặc Enter). "Câu trước" (hoặc ←) xem lại câu đã làm.
 - Tiến độ lưu `localStorage` (key `yteq.v1`) sau mỗi câu: reload hoặc đóng tab vẫn làm tiếp được.
 - Hết bài hiện màn kết quả: điểm, xếp loại (Xuất sắc ≥90%, Tốt ≥75%, Đạt ≥50%, Cần ôn lại), thời gian, câu sai kèm đáp án đúng. Các lượt vẫn được lưu trong localStorage (`history`, tối đa 300) dù không có trang xem lịch sử.
-- Phím tắt desktop (không hiển thị trên UI): `1–4` / `A–D` chọn, `Enter` câu tiếp, `Esc` về danh sách bài.
+- Phím tắt desktop (không hiển thị trên UI): `1–4` / `A–D` chọn, `Enter`/`→` câu tiếp, `←` câu trước, `Esc` về danh sách bài.
 - Âm thanh luôn bật, tạo bằng Web Audio API (không file asset). Trên iPhone, gạt công tắc im lặng sẽ tắt tiếng.

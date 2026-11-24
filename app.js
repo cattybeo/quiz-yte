@@ -3,7 +3,6 @@
 
   const LESSONS = window.QUIZ_DATA || [];
   const TITLE = (window.QUIZ_META && window.QUIZ_META.title) || "Quiz tổ chức và quản lý y tế";
-  const SECONDS = 10;
   const AUTO_NEXT_MS = 900;
   const STORE_KEY = "yteq.v1";
   const HISTORY_CAP = 300;
@@ -68,9 +67,9 @@
   const P = {
     check: '<path d="M20 6 9 17l-5-5"/>',
     x: '<path d="M18 6 6 18M6 6l12 12"/>',
-    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
     home: '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
     arrow: '<path d="M5 12h14M13 5l7 7-7 7"/>',
+    back: '<path d="M19 12H5M11 5l-7 7 7 7"/>',
     restart: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',
     list: '<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>',
     chev: '<path d="m9 6 6 6-6 6"/>',
@@ -165,7 +164,7 @@
   function newSession(l) {
     const order = shuffle(range(l.questions.length));
     const opt = order.map((qi) => optionOrder(l.questions[qi]));
-    const s = { lessonId: l.id, startedAt: Date.now(), activeMs: 0, order, opt, answers: [], pos: 0, phase: "ask" };
+    const s = { lessonId: l.id, startedAt: Date.now(), activeMs: 0, order, opt, answers: [], pos: 0 };
     store.sessions[l.id] = s; save();
     return s;
   }
@@ -178,19 +177,19 @@
     const s = validSession(l) || newSession(l);
     const n = l.questions.length;
 
-    let raf = 0, autoT = 0, qStart = 0;
+    let autoT = 0;
+    let view = s.pos; // câu đang xem; s.pos là câu xa nhất đã tới
     let lastTick = performance.now();
     const tickActive = () => { const t = performance.now(); s.activeMs += t - lastTick; lastTick = t; };
-    const stopTimers = () => { cancelAnimationFrame(raf); clearTimeout(autoT); };
     const onHide = () => { tickActive(); save(); };
     window.addEventListener("pagehide", onHide);
     const detach = () => { window.removeEventListener("pagehide", onHide); document.removeEventListener("keydown", onKey); };
-    cleanup = () => { stopTimers(); onHide(); detach(); };
+    cleanup = () => { clearTimeout(autoT); onHide(); detach(); };
 
     function show() {
-      stopTimers();
-      if (s.pos >= n) return finish();
-      const qi = s.order[s.pos], perm = s.opt[s.pos], q = l.questions[qi];
+      clearTimeout(autoT);
+      if (view >= n) return finish();
+      const qi = s.order[view], perm = s.opt[view], q = l.questions[qi];
       const okCount = s.answers.filter((a) => a.ok).length;
 
       app.innerHTML = `
@@ -198,7 +197,7 @@
           <a class="icon-btn" href="#/" aria-label="Về danh sách bài (tiến độ đã lưu)" title="Về danh sách bài">${icon("home")}</a>
           <div class="mid">
             <div class="title">Bài ${esc(l.id)}. ${esc(l.title)}</div>
-            <div class="sub">Câu <b>${s.pos + 1}/${n}</b>, còn <b data-remaining>${n - s.answers.length}</b> câu</div>
+            <div class="sub">Câu <b>${view + 1}/${n}</b>, còn <b data-remaining>${n - s.answers.length}</b> câu</div>
           </div>
           <div class="tally">
             <span class="ok" aria-label="Số câu đúng">${icon("check")}<b data-ok>${okCount}</b></span>
@@ -209,15 +208,11 @@
         <div class="dots" aria-hidden="true">
           ${range(n).map((i) => {
             const a = s.answers[i];
-            return `<i class="${a ? (a.ok ? "ok" : "bad") : i === s.pos ? "cur" : ""}"></i>`;
+            return `<i class="${a ? (a.ok ? "ok" : "bad") : i === view ? "cur" : ""}"></i>`;
           }).join("")}
         </div>
 
         <section class="qcard">
-          <div class="timer" role="timer" aria-label="Thời gian còn lại">
-            ${icon("clock")}<span class="num">${SECONDS}s</span>
-            <div class="track"><div class="fill"></div></div>
-          </div>
           <h2 class="question">${esc(q.q)}</h2>
           <div class="options" role="group" aria-label="Các đáp án">
             ${perm.map((orig, d) => `
@@ -230,46 +225,28 @@
         </section>
 
         <div class="actions">
-          <button class="btn primary next">${s.pos + 1 >= n ? "Xem kết quả" : "Câu tiếp"} ${icon("arrow")}</button>
+          <button class="btn back" ${view === 0 ? "disabled" : ""}>${icon("back")} Câu trước</button>
+          <button class="btn primary next">${view + 1 >= n ? "Xem kết quả" : "Câu tiếp"} ${icon("arrow")}</button>
         </div>
         <p class="sr-only" aria-live="assertive" data-live></p>
       `;
       window.scrollTo({ top: 0 });
 
-      if (s.phase === "reveal" && s.answers.length === s.pos + 1) reveal(s.answers[s.pos], false);
-      else { s.phase = "ask"; startTimer(); }
-    }
-
-    function startTimer() {
-      const fill = $(".timer .fill"), num = $(".timer .num"), box = $(".timer");
-      qStart = performance.now();
-      const deadline = qStart + SECONDS * 1000;
-      const loop = (t) => {
-        const left = Math.max(0, deadline - t);
-        fill.style.transform = `scaleX(${left / (SECONDS * 1000)})`;
-        num.textContent = `${Math.ceil(left / 1000)}s`;
-        box.classList.toggle("low", left <= 3000);
-        if (left <= 0) return answer(null);
-        raf = requestAnimationFrame(loop);
-      };
-      raf = requestAnimationFrame(loop);
+      if (s.answers[view]) reveal(s.answers[view], false);
     }
 
     function answer(d) {
-      if (s.phase !== "ask") return;
-      stopTimers();
-      const qi = s.order[s.pos], perm = s.opt[s.pos], q = l.questions[qi];
-      const chosen = d === null ? null : perm[d];
-      const rec = { q: qi, c: chosen, ok: chosen === q.answer, ms: Math.round(performance.now() - qStart) };
-      s.answers[s.pos] = rec;
-      s.answers.length = s.pos + 1;
-      s.phase = "reveal";
+      if (s.answers[view]) return;
+      const qi = s.order[view], perm = s.opt[view], q = l.questions[qi];
+      const chosen = perm[d];
+      const rec = { q: qi, c: chosen, ok: chosen === q.answer };
+      s.answers[view] = rec;
       tickActive(); save();
       reveal(rec, true);
     }
 
     function reveal(rec, live) {
-      const perm = s.opt[s.pos];
+      const perm = s.opt[view];
       const correctD = perm.indexOf(l.questions[rec.q].answer);
       const chosenD = rec.c === null ? -1 : perm.indexOf(rec.c);
       app.querySelectorAll(".opt").forEach((b, d) => {
@@ -280,21 +257,14 @@
         else b.classList.add("is-dim");
       });
 
-      const timer = $(".timer");
-      const timedOut = rec.c === null;
-      timer.classList.remove("low");
-      timer.classList.add(timedOut ? "timeout" : "done");
-      $(".qcard").classList.toggle("timeout", timedOut);
-      if (!live) { $(".timer .fill").style.transform = "scaleX(0)"; $(".timer .num").textContent = "0s"; }
-
       // Screen readers only; sighted users read the colors.
-      $("[data-live]").textContent = rec.ok ? "Đúng" : rec.c === null ? "Hết giờ" : "Sai";
+      $("[data-live]").textContent = rec.ok ? "Đúng" : "Sai";
 
       const okCount = s.answers.filter((a) => a.ok).length;
       $("[data-ok]").textContent = okCount;
       $("[data-bad]").textContent = s.answers.length - okCount;
       $("[data-remaining]").textContent = n - s.answers.length;
-      const dot = app.querySelectorAll(".dots i")[s.pos];
+      const dot = app.querySelectorAll(".dots i")[view];
       if (dot) dot.className = rec.ok ? "ok" : "bad";
 
       const next = $(".next");
@@ -306,9 +276,16 @@
     }
 
     function advance() {
-      if (s.phase !== "reveal") return;
+      if (!s.answers[view]) return;
       clearTimeout(autoT);
-      s.pos += 1; s.phase = "ask"; save();
+      view += 1; s.pos = Math.max(s.pos, view); save();
+      show();
+    }
+
+    function back() {
+      if (view === 0) return;
+      clearTimeout(autoT);
+      view -= 1;
       show();
     }
 
@@ -323,7 +300,6 @@
         durationMs: Math.round(s.activeMs),
         total: n,
         correct,
-        timeouts: s.answers.filter((a) => a.c === null).length,
         wrong: s.answers.filter((a) => !a.ok).map((a) => ({ q: a.q, c: a.c })),
       };
       store.history = [attempt, ...store.history].slice(0, HISTORY_CAP);
@@ -337,14 +313,15 @@
     function onKey(e) {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const k = e.key.toLowerCase();
-      if (s.phase === "ask") {
+      if (!s.answers[view]) {
         let d = -1;
         if (/^[1-6]$/.test(k)) d = +k - 1;
         else if (/^[a-f]$/.test(k)) d = k.charCodeAt(0) - 97;
-        if (d >= 0 && d < s.opt[s.pos].length) { e.preventDefault(); answer(d); }
-      } else if (s.phase === "reveal" && (k === "enter" || k === " " || k === "arrowright")) {
+        if (d >= 0 && d < s.opt[view].length) { e.preventDefault(); answer(d); }
+      } else if (k === "enter" || k === " " || k === "arrowright") {
         e.preventDefault(); advance();
       }
+      if (k === "arrowleft") { e.preventDefault(); back(); }
       if (k === "escape") go("#/");
     }
     document.addEventListener("keydown", onKey);
@@ -353,6 +330,7 @@
       const opt = e.target.closest(".opt");
       if (opt && !opt.disabled) { ctx(); return answer(+opt.dataset.d); }
       if (e.target.closest(".next.show")) advance();
+      if (e.target.closest(".back")) back();
     };
 
     show();
@@ -366,7 +344,7 @@
     document.title = `Kết quả bài ${a.lessonId} · ${TITLE}`;
     const p = pct(a), r = rating(p);
     const ringColor = { excellent: "var(--ok)", good: "var(--ok)", pass: "var(--warn)", fail: "var(--no)" }[r.key];
-    const wrongCount = a.total - a.correct - a.timeouts;
+    const wrongCount = a.total - a.correct;
 
     const reviews = l ? a.wrong.map((w) => {
       const q = l.questions[w.q]; if (!q) return "";
@@ -374,8 +352,7 @@
         <article class="review-item">
           <p class="q">${esc(q.q)}</p>
           <div class="a ok">${icon("check")}<span>${esc(q.options[q.answer])}</span></div>
-          ${w.c === null ? `<div class="a to">${icon("clock")}<span>Hết giờ, chưa chọn</span></div>`
-                         : `<div class="a bad">${icon("x")}<span>${esc(q.options[w.c] ?? "")}</span></div>`}
+          ${w.c === null ? "" : `<div class="a bad">${icon("x")}<span>${esc(q.options[w.c] ?? "")}</span></div>`}
         </article>`;
     }).join("") : "";
 
@@ -392,7 +369,6 @@
           <div class="kv">
             <span class="ok">${icon("check")} Đúng <b>${a.correct}</b></span>
             <span class="bad">${icon("x")} Sai <b>${wrongCount}</b></span>
-            <span class="to">${icon("clock")} Hết giờ <b>${a.timeouts}</b></span>
             <span>Thời gian <b>${fmtDur(a.durationMs)}</b></span>
           </div>
         </div>

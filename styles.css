@@ -68,6 +68,7 @@ svg.i { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor;
   transition: background .15s, border-color .15s;
 }
 .btn:hover { border-color: var(--line-strong); }
+.btn:disabled { opacity: .4; pointer-events: none; }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 .btn.primary:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
 .btn svg.i { width: 18px; height: 18px; }
@@ -139,18 +140,6 @@ svg.i { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor;
 .dots i.bad { background: var(--no); }
 
 .qcard { padding: 24px 24px 22px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
-.timer { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: var(--muted); }
-.timer .num { font-variant-numeric: tabular-nums; font-weight: 600; font-size: 15px; min-width: 28px; }
-.timer .track { flex: 1; height: 6px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
-.timer .fill { height: 100%; width: 100%; background: var(--accent); border-radius: 999px; transform-origin: left center; will-change: transform; }
-.timer.low { color: var(--warn); }
-.timer.low .fill { background: var(--warn); }
-.timer.done { color: var(--faint); }
-.timer.done .fill { background: var(--line-strong); }
-/* Hết giờ = fail: tín hiệu đỏ nằm ở đồng hồ và viền thẻ, không tô đỏ đáp án nào vì chưa chọn */
-.timer.timeout { color: var(--no); animation: shake .36s ease; }
-.timer.timeout .track { background: var(--no-wash); border-color: color-mix(in srgb, var(--no) 45%, transparent); }
-.qcard.timeout { border-color: var(--no); box-shadow: 0 0 0 1px var(--no); }
 
 .question { font-size: clamp(19px, 2.4vw, 22px); line-height: 1.5; font-weight: 600; margin: 0 0 20px; letter-spacing: -0.01em; text-wrap: pretty; }
 .options { display: grid; gap: 10px; }
@@ -187,7 +176,7 @@ svg.i { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor;
 @keyframes shake { 0%,100% { transform: none; } 20% { transform: translateX(-6px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } }
 @keyframes pop { 45% { transform: scale(1.015); } }
 
-.actions { display: flex; justify-content: flex-end; margin-top: 16px; min-height: 48px; }
+.actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 16px; min-height: 48px; }
 .actions .next { visibility: hidden; }
 .actions .next.show { visibility: visible; }
 
@@ -206,7 +195,7 @@ svg.i { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor;
 .kv { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; font-size: 14.5px; color: var(--muted); }
 .kv span { display: inline-flex; align-items: center; gap: 6px; }
 .kv b { color: var(--ink); }
-.kv .ok svg { color: var(--ok); } .kv .bad svg { color: var(--no); } .kv .to svg { color: var(--warn); }
+.kv .ok svg { color: var(--ok); } .kv .bad svg { color: var(--no); }
 .result-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0 28px; }
 .result-actions .btn { flex: 1 1 180px; }
 
@@ -219,7 +208,6 @@ svg.i { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor;
 .review-item .a svg.i { width: 18px; height: 18px; margin-top: 2px; stroke-width: 2.6; }
 .review-item .a.ok { background: var(--ok-wash); color: var(--ok-ink); }
 .review-item .a.bad { background: var(--no-wash); color: var(--no-ink); }
-.review-item .a.to { background: var(--warn-wash); color: #8A5A10; }
 .all-right { padding: 28px 20px; text-align: center; color: var(--ok-ink); font-weight: 600; background: var(--ok-wash); border-radius: var(--r); }
 
 /* ---------- responsive ---------- */
