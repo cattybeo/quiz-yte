@@ -45,7 +45,7 @@ Format mỗi câu: `{ "q": "...", "options": ["...", "..."], "answer": <index 0-
 
 - Mỗi lượt luôn xáo trộn thứ tự câu hỏi và đáp án, trừ câu có "Cả A và B" (giữ nguyên) và "Tất cả các câu trên" (giữ ở cuối, xáo phần còn lại).
 - Không giới hạn thời gian. Chọn đáp án là hiện đúng/sai ngay; câu đã trả lời không đổi được.
-- Đúng: tự sang câu sau sau 0,9s. Sai: bấm "Câu tiếp" (hoặc Enter). "Câu trước" (hoặc ←) xem lại câu đã làm.
+- Không tự chuyển câu: bấm "Câu tiếp" (hoặc Enter). "Câu trước" (hoặc ←) xem lại câu đã làm.
 - Tiến độ lưu `localStorage` (key `yteq.v1`) sau mỗi câu: reload hoặc đóng tab vẫn làm tiếp được.
 - Hết bài hiện màn kết quả: điểm, xếp loại (Xuất sắc ≥90%, Tốt ≥75%, Đạt ≥50%, Cần ôn lại), thời gian, câu sai kèm đáp án đúng. Các lượt vẫn được lưu trong localStorage (`history`, tối đa 300) dù không có trang xem lịch sử.
 - Phím tắt desktop (không hiển thị trên UI): `1–4` / `A–D` chọn, `Enter`/`→` câu tiếp, `←` câu trước, `Esc` về danh sách bài.

@@ -3,7 +3,6 @@
 
   const LESSONS = window.QUIZ_DATA || [];
   const TITLE = (window.QUIZ_META && window.QUIZ_META.title) || "Quiz tổ chức và quản lý y tế";
-  const AUTO_NEXT_MS = 900;
   const STORE_KEY = "yteq.v1";
   const HISTORY_CAP = 300;
   const app = document.getElementById("app");
@@ -177,17 +176,15 @@
     const s = validSession(l) || newSession(l);
     const n = l.questions.length;
 
-    let autoT = 0;
     let view = s.pos; // câu đang xem; s.pos là câu xa nhất đã tới
     let lastTick = performance.now();
     const tickActive = () => { const t = performance.now(); s.activeMs += t - lastTick; lastTick = t; };
     const onHide = () => { tickActive(); save(); };
     window.addEventListener("pagehide", onHide);
     const detach = () => { window.removeEventListener("pagehide", onHide); document.removeEventListener("keydown", onKey); };
-    cleanup = () => { clearTimeout(autoT); onHide(); detach(); };
+    cleanup = () => { onHide(); detach(); };
 
     function show() {
-      clearTimeout(autoT);
       if (view >= n) return finish();
       const qi = s.order[view], perm = s.opt[view], q = l.questions[qi];
       const okCount = s.answers.filter((a) => a.ok).length;
@@ -270,21 +267,19 @@
       const next = $(".next");
       next.classList.add("show");
       if (live) {
-        if (rec.ok) { sfx.ok(); autoT = setTimeout(advance, AUTO_NEXT_MS); }
-        else { sfx.no(); vibrate([40, 60, 40]); next.focus({ preventScroll: true }); }
+        if (rec.ok) sfx.ok(); else { sfx.no(); vibrate([40, 60, 40]); }
+        next.focus({ preventScroll: true });
       }
     }
 
     function advance() {
       if (!s.answers[view]) return;
-      clearTimeout(autoT);
       view += 1; s.pos = Math.max(s.pos, view); save();
       show();
     }
 
     function back() {
       if (view === 0) return;
-      clearTimeout(autoT);
       view -= 1;
       show();
     }
