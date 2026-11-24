@@ -172,7 +172,7 @@ window.QUIZ_DATA = [
      "Y tế tuyến Trung ương, Y tế địa phương",
      "Cơ sở y tế Nhà nước"
     ],
-    "answer": 0
+    "answer": 2
    },
    {
     "q": "Y tế địa phương bao gồm:",
